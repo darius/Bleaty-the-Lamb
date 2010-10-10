@@ -1,0 +1,11 @@
+A superoptimizer finds a minimal program satisfying a spec. Here,
+currently, minimal means shortest that runs some given examples in a
+bounded time. (The example may be auto-generated from a type
+declaration, QuickCheck-style.)
+
+A brute-force first cut at doing this for the call-by-value lambda
+calculus. There are smarter programs out there. There is an advantage
+to this current crude approach: specifications you write can use
+impure Scheme features.
+
+Runs in Gambit Scheme. (load "loadme.scm")

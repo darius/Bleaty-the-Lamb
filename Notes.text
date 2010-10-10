@@ -1,0 +1,137 @@
+A typed superoptimizer.
+
+Triggered by this idea after the 2010 ICFP contest:
+
+   Would it be possible to reverse-engineer the car code automatically,
+   too? Using this information:
+
+   * The distinct cars can be represented by a certain algebraic
+     datatype.
+
+   * The representations are trit strings.
+
+   * We have an oracle saying whether a trit string represents a car.
+
+   Could we represent 'reasonable' codes as something like a restricted
+   class of attribute grammars? Then we enumerate all of them in order of
+   increasing size, and report ones that succeed and produce instances of
+   our result datatype only on the right tritstrings (by a selection of
+   tests).
+
+   Might be more practical using a SAT solver. (Sometime I'll have to try
+   the NAND superopt with a SAT solver -- I'd guess these days it could
+   do a lot better than my custom code.)
+
+There have been some cool-looking papers on automatic reverse
+engineering in the last few years, but I haven't read them -- they
+don't sound like they could have solved the car problem. Here's one:
+
+http://research.microsoft.com/en-us/um/people/helenw/papers/discoverer.pdf
+
+The others in a quick google search assumed you have the binary of a
+program implementing the protocol.
+
+There's also been a lot of work on grammar induction, starting with
+Chomsky saying it requires inductive bias. I haven't looked into it;
+I'd be a bit surprised if any of it's used the kind of constraint
+considered here, of encoding a known algebraic datatype.
+
+Fleshing out the idea from my last message a bit, you get a typed
+superoptimizer, with broader applications since it deals in
+Haskell-like types instead of something more specific like
+<algebraic-type> -> <list-of-symbol>:
+
+Enumerate all programs of a certain type, in order of increasing
+size. (All programs in a language limited enough that we can do that.)
+For the car problem, we'd want the type CarType -> [Trit]; then we'd
+test each program on sample inputs, checking against the oracle.
+
+I'm supposing the type constraint could make this search a lot less
+inefficient than just enumerating all possible programs, but I don't
+know quite how. It's about equivalent to enumerating all proofs of a
+proposition, by Curry-Howard.
+
+Prior art:
+
+* Susumu Katayama, "Systematic search for lambda expressions". Kind
+  of hard to follow.
+
+* Lennart Augustsson, Djinn. Handles only nonrecursive types, emits
+  just one program. But I've got the source code. It's based on a
+  decision procedure for intuitionistic propositional calculus;
+  presumably the nonrecursive-types restriction comes out of that
+  completeness property. (Also, jsl57.pdf says "any formula can only
+  have a finite number of proofs in LJT.")
+
+* http://www.polyomino.f2s.com/david/haskell/programsfromproofs.html
+
+* Yakushev & Jeuring 2009, "Enumerating Well-Typed Terms Generically".
+  This looks promising! They show an enumeration for the simply-typed
+  lambda calculus, so I guess we still can't use recursive types. But
+  they say there's no barrier to extending it in that direction.
+  Has a good related-work section, except something ate the refs!
+  Says they may have the slowest algorithm of those considered there.
+
+Again, could we do this more effectively using a SAT solver?
+
+In summary, there doesn't yet seem to be a tool that could've solved
+the problem[*], but recent work sounds tantalizingly close, and it
+could be fun and instructive to tackle.
+
+[*] Except maybe by feeding it a finite approximation to the problem.
+
+The reverse-engineering problem has an extra constraint not exploited
+by the above: distinct inputs should produce distinct outputs. Any
+simple ways to use that? Sounds hard.
+
+----------------------------------------------------------------------------
+http://kanren.sourceforge.net/ -- type-inference.scm
+http://www.doc.ic.ac.uk/~shm/progol.html
+
+----------------------------------------------------------------------------
+http://infolab.stanford.edu/pub/cstr/reports/cs/tr/72/255/CS-TR-72-255.pdf
+
+  This is theoretically feasible because of an apparently paradoxical
+  result on the inference of programs. Although it is undecidable
+  whether a given program produces some output, a machine can find the
+  best program which does so. The formal development is beyond the scope
+  of this paper [lo], but we will outline the basic idea. Suppose we say
+  that the complexity of a program on an input-output pair is the
+  product of its size and the time it takes to compute the value of the
+  output given the input. Suppose we have all the programs enumerated by
+  size. Then the machine proceeds as follows. Let Pl (the first program)
+  run for one second on the input, then let Pl, P2 both run two seconds
+  and so on.  Eventually some program will halt with the right answer.
+  This establishes an upper bound, K on the complexity of the best
+  program. of size greater than K can not be the best one. For the
+  finite number of smaller programs, the machine simply lets each one
+  run until its space-time product (complexity) exceeds K and then
+  chases the best value of complexity. This algorithm, while proving the
+  claim, is so inefficient as to defy even contemplating its
+  implementation. There are attempts to develop reasonable algorithms
+  for inferring programs as has been done for grammars [4]. If these
+  work out, the inference 'method has several advantages.
+
+  First, the method will always yield the best program over a finite
+  domain, and the same method can be shown to have good properties in
+  the limit for countable domains [lo]. If a direct method for solving
+  (3) for F fails the following strategy could be applied. Use the
+  inference method to compute a program P which works for the specific
+  values known to obey R(x,y). Given a new value x' compute 
+  R(x', P(x')). If it is true then P also works for x'.
+  If not, solve explicitly for a value y' such that R(x' , y') by
+  numerical or search techniques, infer a new program P' which has
+  P/(x') = yl and continue. This entire procedure will work in many
+  cases where theorem proving techniques would not and has at least
+  theoretical interest. Inference techniques also have the obvious
+  advantage that they can be used when only examples of the input-output
+  pairs are given. Other inferential methods are being considered by
+  Amarel [2].
+
+----------------------------------------------------------------------------
+
+http://lambda-the-ultimate.org/node/1178
+
+http://lara.epfl.ch/~kuncak/papers/vkuncak_abstracts.html
+
+http://www.idsia.ch/~juergen/oops.html
