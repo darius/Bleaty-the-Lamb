@@ -23,7 +23,10 @@
       (lambda (xs)
         (foldr (lambda (x result) ((f x) result)) z xs)))))
 
-(define (ccons hd) (lambda (tl) (cons hd tl)))
+(define ccons 
+  (lambda (hd) 
+    (lambda (tl) 
+      (cons hd tl))))
 
 (defspec cappend (ccons cfoldr)
   (equal? '(x y z) ((cappend '()) '(x y z)))
